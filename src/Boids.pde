@@ -1,4 +1,4 @@
- Flock flock;
+Flock flock;
 
 int frames = 0;
 int time_s = 60*60*hour() + 60*minute() + second() + millis()/1000;
@@ -12,13 +12,9 @@ void setup() {
   background(0,0,0);
   frameRate(60);
   flock = new Flock();
-  /*
   for (int i=0; i<1000; i++) {
     flock.Add_Boid(width/2, height/2);
   }
-  */
-  flock.Add_Boid(width/2+25, height/2);
-  flock.Add_Boid(width/2-25, height/2);
   flock.Add_Label(width*0.9, height*0.9, 240, 240, 240, 30, "Boids - by Kiko");
   println("window width: " + width + "   window height: " + height);
 }

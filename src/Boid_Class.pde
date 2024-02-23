@@ -27,7 +27,7 @@ class Boid
   float align_fac = 1;
   
   float fleee_fac = 1;
-  float randm_fac = 1;
+  float randm_fac = 1  ;
   
   
   float min_speed = 1;
@@ -121,21 +121,19 @@ class Boid
   
   PVector Cohesion() {
     // Calculates the Cohesion Vector
-    int n_neighbours = this.neighbours.size();
+    int n_neighbours = neighbours.size();
     PVector coh_vec = new PVector(0,0);
     PVector center = new PVector(this.position.x/(n_neighbours+1), this.position.y/(n_neighbours+1));
     
     for (Boid boid : this.neighbours) {
-      center.x += ( boid.position.x/(n_neighbours+1) );
-      center.y += ( boid.position.y/(n_neighbours+1) );
+      center.x = ( center.x + ( boid.position.x/(n_neighbours+1) ) );
+      center.y = ( center.y + ( boid.position.y/(n_neighbours+1) ) );
     }
-    coh_vec.x = (center.x-this.position.x) * this.cohes_fac;
-    coh_vec.y = (center.y-this.position.y) * this.cohes_fac;
+    coh_vec.x = (center.x-this.position.x) * cohes_fac;
+    coh_vec.y = (center.y-this.position.y) * cohes_fac;
     
-    println("Cohesion " + coh_vec.x + ", " + coh_vec.y);
-    
-    stroke(250,0,0);
-    line(this.position.x, this.position.y, this.position.x+coh_vec.x, this.position.y+coh_vec.y);
+    //stroke(250,0,0);
+    //line(this.position.x, this.position.y, this.position.x+coh_vec.x, this.position.y+coh_vec.y);
     return coh_vec;
   }
   
@@ -143,31 +141,23 @@ class Boid
   PVector Separation() {
     // Calculates the Separation Vector
     PVector sep_vec = new PVector(0,0);
-    PVector vec = new PVector(0,0);
-    float sep_value;
-    float dist;
     
     for (Boid boid : this.neighbours) {
-      vec.x = this.position.x-boid.position.x; vec.y = this.position.y-boid.position.y;
-      dist = vec.mag();
-      
-      if (dist<0.01) {
-        this.position.x += 0.01;
-        this.position.y += 0.01;
-        vec.x = boid.position.x-this.position.x; vec.y = boid.position.y-this.position.y;
-        dist = vec.mag();
-      } 
-      //vec.x = vec.x/dist; vec.y = vec.y/dist;
-      
-      sep_value = ( pow(this.flock.vision_range,6) / pow(dist,6) - 1 );
-      
-      sep_vec.x += (vec.x*sep_value) * this.separ_fac;
-      sep_vec.y += (vec.y*sep_value) * this.separ_fac;
+      PVector vec = new PVector(position.x-boid.position.x, position.y-boid.position.y);
+      if (vec.x+vec.y == 0){
+        vec.x = vec.x+0.001;
+      }
+      if (Math.sqrt( Math.pow(boid.position.x-position.x, 2) + Math.pow(boid.position.y-position.y, 2) )<0.01) {
+        position.x = position.x + 0.01;
+        position.y = position.y + 0.01;
+      }
+      float k =  (float)Math.sqrt( (( 1800/Math.sqrt( Math.pow(boid.position.x-position.x, 2) + Math.pow(boid.position.y-position.y, 2) )
+                                                     )) / ((Math.pow(vec.x, 2)+Math.pow(vec.y, 2))*2) ) ;
+      sep_vec.x = (sep_vec.x + vec.x*k) * separ_fac;
+      sep_vec.y = (sep_vec.y + vec.y*k) * separ_fac;
     }
-    
-    println("Separation " + sep_vec.x + ", " + sep_vec.y);
-    stroke(0,255,0);
-    line(this.position.x, this.position.y, this.position.x+sep_vec.x, this.position.y+sep_vec.y);
+    //stroke(0,255,0);
+    //line(this.position.x, this.position.y, this.position.x+sep_vec.x, this.position.y+sep_vec.y);
     return sep_vec;
   }
   
@@ -182,6 +172,8 @@ class Boid
       ali_vec.x = ( ali_vec.x + ( vec.x/n_neighbours ) ) * align_fac;
       ali_vec.y = ( ali_vec.y + ( vec.y/n_neighbours ) ) * align_fac;
     }
+    //stroke(0,0,255);
+    //line(this.position.x, this.position.y, this.position.x+ali_vec.x, this.position.y+ali_vec.y);
     return ali_vec;
   }
   
@@ -198,8 +190,8 @@ class Boid
         vec.x = vec.x+0.001;
       }
       if (Math.sqrt( Math.pow(scarer.position.x-position.x, 2) + Math.pow(scarer.position.y-position.y, 2) )<0.1) {
-        position.x = position.x + 0.01;
-        position.y = position.y + 0.01;
+        position.x = position.x + 1;
+        position.y = position.y + 1;
       }
       float k =  (float)Math.sqrt( (( scarer.potency / 
                         Math.sqrt( Math.pow(scarer.position.x-position.x, 2) + Math.pow(scarer.position.y-position.y, 2) )
@@ -244,7 +236,6 @@ class Boid
     
     this.position = new PVector( this.position.x + this.facing.x, this.position.y + this.facing.y );
     // println("id :" + ID);
-    // print(this.position.x + ", " +this.position.y);
   }
   
   // Check if the Boid is not off-bounds
